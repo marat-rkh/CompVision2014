@@ -1,53 +1,71 @@
 import cv2
-import numpy
+import numpy as np
 from Tkinter import *
 import os.path
 
-def showImg(img, saveName):
-    cv2.imshow('detected', img)
+globalImg = None
+
+def showImg(saveName):
+    cv2.imshow('detected', globalImg)
     k = cv2.waitKey(0) & 0xFF
-    if k == ord('s'):
-        if not saveName is None:
-            cv2.imwrite(saveName, img)
-        else:
-            print("Save failed: name is not provided")
+    if not saveName is None:
+        cv2.imwrite(saveName, globalImg)
+    else:
+        print("Save failed: name is not provided")
     cv2.destroyAllWindows()
 
-def normalizeInput():
-    if(gKerWidth.get() % 2 == 0):
-        gKerWidth.set(gKerWidth.get() + 1)
-    if(gKerHeight.get() % 2 == 0):
-        gKerHeight.set(gKerHeight.get() + 1)
-    if(lKer.get() % 2 == 0):
-        lKer.set(lKer.get() + 1)
+def normalize(i):
+    if(i.get() % 2 == 0):
+        return i.get() + 1
+    return i.get()
 
-def detectText():
-    normalizeInput()
+def normalizeInput():
+    gKerWidth.set(normalize(gKerWidth))
+    gKerHeight.set(normalize(gKerHeight))
+    lKer.set(normalize(lKer))
+
+def loadImg():
     if not os.path.exists('text.bmp'):
         print("'text.bmp' file not found")
         return
-    img = cv2.imread('text.bmp', 0)
-    blured = cv2.GaussianBlur(img, (gKerWidth.get(), gKerHeight.get()), 0)
-    detected = cv2.Laplacian(blured, cv2.CV_64F, ksize=lKer.get())
-    cv2.imwrite('detected.bmp', detected)
+    global globalImg
+    globalImg = cv2.imread('text.bmp', 0)
+
+def detectText():
+    normalizeInput()
+    global globalImg
+    globalImg = cv2.GaussianBlur(globalImg, (gKerWidth.get(), gKerHeight.get()), 0)
+    globalImg = cv2.Laplacian(globalImg, cv2.CV_64F, ksize=lKer.get())
+    save()
+
+def doErode():
+    normalizeInput()
+    eKer = np.ones((eKerW.get(), eKerH.get()), np.uint8)
+    global globalImg
+    globalImg = cv2.erode(globalImg, eKer, iterations=1)
+    save()
+
+def doDilate():
+    normalizeInput()
+    dKer = np.ones((dKerW.get(), dKerH.get()), np.uint8)
+    global globalImg
+    globalImg = cv2.dilate(globalImg, dKer, iterations=1)
+    save()
+
+def save():
+    # cv2.imwrite('detected.bmp', globalImg)
+    showImg('detected.bmp')
     print("Result stored in file 'detected.bmp'")
 
+# creating controls
 master = Tk()
 
-labelStrVar = StringVar()
-label = Label(master, textvariable=labelStrVar, relief=RAISED, wraplength=300)
-labelStrVar.set("This program detects text on the sample image. Set desired parameters and press 'Detect' " + 
-                "(defaults are the best for the current task, so just press 'Detect'). Image with name " + 
-                "'text.bmp' will be loaded from disk (it must be placed in the current folder), processed " + 
-                "and result will be stored in the current folder")
-label.pack()
-
 gKerWidth = Scale(master, from_=0, to=100, orient=HORIZONTAL, length=300, label='Gaussian kernel width')
-gKerWidth.set(39)
+gKerWidth.set(21)
 gKerWidth.pack()
 
 gKerHeight = Scale(master, from_=0, to=100, orient=HORIZONTAL, length=300, label='Gaussian kernel height')
-gKerHeight.set(21)
+gKerHeight.set(23)
 gKerHeight.pack()
 
 lKer = Scale(master, from_=0, to=100, orient=HORIZONTAL, length=300, label='Laplacian kernel size')
@@ -56,4 +74,27 @@ lKer.pack()
 
 Button(master, text='Detect', command=detectText).pack()
 
+eKerW = Scale(master, from_=0, to=100, orient=HORIZONTAL, length=300, label='Erode kernel width')
+eKerW.set(5)
+eKerW.pack()
+
+eKerH = Scale(master, from_=0, to=100, orient=HORIZONTAL, length=300, label='Erode kernel height')
+eKerH.set(5)
+eKerH.pack()
+
+Button(master, text='Erode', command=doErode).pack()
+
+dKerW = Scale(master, from_=0, to=100, orient=HORIZONTAL, length=300, label='Dilate kernel width')
+dKerW.set(8)
+dKerW.pack()
+
+dKerH = Scale(master, from_=0, to=100, orient=HORIZONTAL, length=300, label='Dilate kernel height')
+dKerH.set(7)
+dKerH.pack()
+
+Button(master, text='Dilate', command=doDilate).pack()
+Button(master, text='Reset', command=loadImg).pack()
+
+# start the program
+loadImg()
 mainloop()
