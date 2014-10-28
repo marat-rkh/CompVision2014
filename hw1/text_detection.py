@@ -29,7 +29,8 @@ def loadImg():
         print("'text.bmp' file not found")
         return
     global globalImg
-    globalImg = cv2.imread('text.bmp', 0)
+    globalImg = cv2.imread('text.bmp', cv2.IMREAD_GRAYSCALE)
+    globalImg = globalImg
 
 def detectText():
     normalizeInput()
@@ -40,14 +41,14 @@ def detectText():
 
 def doErode():
     normalizeInput()
-    eKer = np.ones((eKerW.get(), eKerH.get()), np.uint8)
+    eKer = np.ones((eKerH.get(), eKerW.get()), np.uint8)
     global globalImg
     globalImg = cv2.erode(globalImg, eKer, iterations=1)
     save()
 
 def doDilate():
     normalizeInput()
-    dKer = np.ones((dKerW.get(), dKerH.get()), np.uint8)
+    dKer = np.ones((dKerH.get(), dKerW.get()), np.uint8)
     global globalImg
     globalImg = cv2.dilate(globalImg, dKer, iterations=1)
     save()
