@@ -11,6 +11,7 @@ cv2.imwrite('task1out.bmp', img)
 ## task 2
 # transform words to shapes using dilate / erode
 img = 255 - cv2.imread('text.bmp', cv2.IMREAD_GRAYSCALE)
+(thresh, img) = cv2.threshold(img, 128, 255, cv2.THRESH_BINARY)
 img = cv2.dilate(img, np.ones((4, 5), np.uint8), iterations=1)
 img = cv2.erode(img, np.ones((4, 4), np.uint8), iterations=1)
 img = cv2.dilate(img, np.ones((1, 5), np.uint8), iterations=1)
@@ -18,7 +19,6 @@ img = cv2.erode(img, np.ones((4, 4), np.uint8), iterations=1)
 img = cv2.dilate(img, np.ones((1, 5), np.uint8), iterations=1)
 img = cv2.erode(img, np.ones((4, 4), np.uint8), iterations=1)
 img = cv2.dilate(img, np.ones((8, 1), np.uint8), iterations=1)
-(thresh, img) = cv2.threshold(img, 128, 255, cv2.THRESH_BINARY)
 cv2.imwrite('task2out1.bmp', img)
 
 # find enclosing rectangles using floodFill
