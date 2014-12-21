@@ -4,7 +4,8 @@ import numpy as np
 ## task 1
 img = cv2.imread('text.bmp', cv2.IMREAD_GRAYSCALE)
 img = cv2.GaussianBlur(img, (41, 23), 0)
-img = cv2.Laplacian(img, cv2.CV_32F, ksize=11)
+img = cv2.Laplacian(img, ddepth = cv2.CV_32F, ksize=11)
+(thresh, img) = cv2.threshold(img, 0, 255, cv2.THRESH_BINARY)
 cv2.imwrite('task1out.bmp', img)
 
 ## task 2
@@ -17,7 +18,7 @@ img = cv2.erode(img, np.ones((4, 4), np.uint8), iterations=1)
 img = cv2.dilate(img, np.ones((1, 5), np.uint8), iterations=1)
 img = cv2.erode(img, np.ones((4, 4), np.uint8), iterations=1)
 img = cv2.dilate(img, np.ones((8, 1), np.uint8), iterations=1)
-(thresh, img) = cv2.threshold(img, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
+(thresh, img) = cv2.threshold(img, 128, 255, cv2.THRESH_BINARY)
 cv2.imwrite('task2out1.bmp', img)
 
 # find enclosing rectangles using floodFill
